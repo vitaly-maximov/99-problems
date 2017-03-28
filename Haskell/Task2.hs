@@ -1,5 +1,7 @@
 module Task2 where
 
+import Common
+
 {-
 Find the last but one element of a list.
 
@@ -9,23 +11,30 @@ Prelude> myButLast ['a'..'z']
 'y'
 -}
 
-secondFromEnd :: [a] -> Maybe a
-secondFromEnd [x, _] = Just x
+secondFromEnd :: [a] -> a
+secondFromEnd [] = error "list is too small"
+secondFromEnd [x, _] = x
 secondFromEnd (_ : xs) = secondFromEnd xs
-secondFromEnd _ = Nothing
+
 
 main :: IO()
 main = do
-    putStr "secondFromEnd [] == Nothing \t\t\t"
-    print $ case secondFromEnd [] of
-        Nothing -> True
-        _ -> False
+    testError "#1"
+        "secondFromEnd []"
+        (secondFromEnd ([] :: [Int]))
+        "list is too small"
 
-    putStr "secondFromEnd [1] == Nothing \t\t\t"
-    print $ secondFromEnd [1] == Nothing
+    testError "#2"
+        "secondFromEnd [1]"
+        (secondFromEnd [1])
+        "list is too small"
 
-    putStr "secondFromEnd [1,2,3,4] == Just 3 \t\t"
-    print $ secondFromEnd [1,2,3,4] == Just 3
+    test "#3"
+        "secondFromEnd [1,2,3,4]"
+        (secondFromEnd [1,2,3,4])
+        3
 
-    putStr "secondFromEnd ['a'..'z'] == Just 'y' \t"
-    print $ secondFromEnd ['a'..'z'] == Just 'y'
+    test "#4"
+        "secondFromEnd ['a'..'z']"
+        (secondFromEnd ['a'..'z'])
+        'y'

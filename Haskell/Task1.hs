@@ -1,5 +1,7 @@
 module Task1 where
 
+import Common
+
 {-
 Find the last element of a list.
 
@@ -9,23 +11,29 @@ Prelude> myLast ['x','y','z']
 'z'
 -}
 
-lastElement :: [a] -> Maybe a
-lastElement [] = Nothing
-lastElement [x] = Just x
+lastElement :: [a] -> a
+lastElement [] = error "list is empty"
+lastElement [x] = x
 lastElement (_ : xs) = lastElement xs
 
 main :: IO()
 main = do
-    putStr "lastElement [] == Nothing \t\t\t\t"
-    print $ case lastElement [] of
-        Nothing -> True
-        _ -> False
+    testError "#1"
+        "lastElement []"
+        (lastElement ([] :: [Int]))
+        "list is empty"
 
-    putStr "lastElement [1] == Just 1 \t\t\t\t"
-    print $ lastElement [1] == Just 1
+    test "#2"
+        "lastElement [1]"
+        (lastElement [1])
+        1
 
-    putStr "lastElement [1,2,3,4] == Just 4 \t\t"
-    print $ lastElement [1,2,3,4] == Just 4
+    test "#3"
+        "lastElement [1,2,3,4]"
+        (lastElement [1,2,3,4])
+        4
 
-    putStr "lastElement ['x','y','z'] == Just 'z' \t"
-    print $ lastElement ['x','y','z'] == Just 'z'
+    test "#4"
+        "lastElement ['x','y','z']"
+        (lastElement ['x','y','z'])
+        'z'

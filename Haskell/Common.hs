@@ -1,30 +1,41 @@
-module Common where
+module Common (test, testError) where
 
 import Control.Exception
 
-test :: Show a => Num -> String -> a -> a -> IO()
-test _ _ expression result | show expression == show result = return ()
-test number description expression result = do    
-    print "Test #" ++ number ++ " is failed:"    
-    putStr "\t" ++ description ++ " == "    
-    putStr $ "'" ++ show expression ++ "'"
+test :: (Show a, Show b) => String -> String -> a -> b -> IO()
+test _ _ expression expectedResult | show expression == show expectedResult = return ()
+test testNumber testDescription expression expectedResult = do
+    putStrLn $ "Test " ++ testNumber ++ " is failed:"
+    putStr $ "\t" ++ testDescription ++ " => "    
+    putStr $ show expression
     putStr " instead of "
-    putStr $ "'" ++ show result ++ "'"
+    putStrLn $ show expectedResult
 
-testError :: Show a => Num -> String -> a -> String -> IO()
-testError number description expression errorMessage = do
-    hasError <- throwsError expression
-    case hasError of
-        (Just someError) -> case someError == errorMessage of
-            True -> return ()
-            False -> 
-        False -> do
-            print "Test #" ++ number ++ " is failed:"
-            putStr "\t" ++ description ++ " == "        
-
-throwsError :: Show a => a -> IO (Maybe String)
-throwsError expression = do
+testError :: Show a => String -> String -> a -> String -> IO()
+testError testNumber testDescription expression expectedError = do
     value <- try $ evaluate expression
     case value of
-        (Left exception) -> return $ Just $ show (exception :: SomeException)
-        (Right _) -> return $ Nothing
+        (Left exception) -> 
+            let
+                expressionError = show (exception :: SomeException)
+            in case expressionError == expectedError of
+                True -> return ()
+                False -> test' $ wrapError expressionError
+        (Right something) -> test' something
+    where
+        wrapError :: String -> String
+        wrapError = (++) "Error: "
+
+        test' :: Show a => a -> IO()
+        test' expression = 
+            test testNumber testDescription expression (wrapError expectedError)
+
+main :: IO()
+main = do    
+    putStrLn "Test #1 is ok"
+    test "#1" "1 + 1" (1 + 1) 2
+    test "#2" "2 * 2" (2 * 3) 4
+    putStrLn "Test #3 is ok"
+    testError "#3" "error \"A\"" (error "A" :: String) "A"
+    testError "#4" "error \"A\"" (error "B" :: String) "A"
+    testError "#5" "error \"A\"" 0 "A"

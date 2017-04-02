@@ -23,13 +23,23 @@ data NestedList a = Elem a | List [NestedList a]
     deriving Show
 
 flatten :: NestedList a -> [a]
-flatten _ = []
-
+flatten (Elem x) = [x]
+flatten (List []) = []
+flatten (List (x : xs)) = (flatten x) ++ (flatten $ List xs)
 
 main :: IO()
 main = do
     test "#1"
-    "flatten $ List []"
-    (flatten $ List ([] :: [NestedList Int]))
-    ([] :: [Int])
+        "flatten $ List []"
+        (flatten $ List ([] :: [NestedList Int]))
+        ([] :: [Int])
 
+    test "#2"
+        "flatten (Elem 5)"
+        (flatten (Elem 5))
+        [5]
+
+    test "#3"
+        "flatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]])"
+        (flatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]))
+        [1, 2, 3, 4, 5]
